@@ -1,8 +1,9 @@
 package utils;
 
-import com.opencsv.*;
-import com.opencsv.exceptions.CsvException;
-import models.*;
+import models.Cultivo;
+import models.Parcela;
+import models.Actividad;
+import models.EstadoCultivo;
 
 import java.io.*;
 import java.time.LocalDate;
@@ -11,54 +12,50 @@ import java.util.*;
 public class CSVHandler {
 
     /**
-     * Lee cultivos de un CSV usando OpenCSV.
+     * Lee el CSV de cultivos y construye los objetos Cultivo, Parcela y Actividad.
      */
-    public static List<Cultivo> leerCultivos(String filePath) 
-            throws IOException, CsvException {
+    public static List<Cultivo> leerCultivos(String filePath) throws IOException {
         List<Cultivo> cultivos = new ArrayList<>();
         Map<String, Parcela> parcelasMap = new HashMap<>();
 
-        try (CSVReader reader = new CSVReaderBuilder(new FileReader(filePath))
-                                   .withCSVParser(new CSVParserBuilder()
-                                       .withSeparator(',')
-                                       .withQuoteChar('\"')
-                                       .build())
-                                   .build()) {
-            List<String[]> rows = reader.readAll();
-            for (String[] parts : rows) {
-                // parts[0] == "Cultivo"
-                String nombre     = parts[1];
-                String variedad   = parts[2];
-                double superficie = Double.parseDouble(parts[3]);
-                String codPar     = parts[4];
-                LocalDate fecha   = LocalDate.parse(parts[5]);
-                EstadoCultivo est = EstadoCultivo.valueOf(parts[6]);
-
-                // La lista de actividades viene en parts[7] como:
-                // ["RIEGO:2023-03-10","COSECHA:2023-06-15"]
-                String rawActs = parts[7];
-                rawActs = rawActs.substring(1, rawActs.length() - 1); // quita [ ]
+        try (BufferedReader br = new BufferedReader(new FileReader(filePath))) {
+            String line;
+            while ((line = br.readLine()) != null) {
+                String[] parts = splitCSV(line);
+                String nombre      = trimQuotes(parts[1]);
+                String variedad    = trimQuotes(parts[2]);
+                double superficie  = Double.parseDouble(parts[3]);
+                String codParcela  = trimQuotes(parts[4]);
+                LocalDate fecha    = LocalDate.parse(trimQuotes(parts[5]));
+                EstadoCultivo est  = EstadoCultivo.valueOf(trimQuotes(parts[6]));
+                String rawActs     = parts[7];
+                // rawActs = ["TIPO:fecha",...]
+                rawActs = rawActs.substring(1, rawActs.length() - 1);
 
                 List<Actividad> actividades = new ArrayList<>();
                 if (!rawActs.isEmpty()) {
-                    // separar por "," garantizando que no rompa las comillas
-                    // rawActs.split("\",\"") funciona porque OpenCSV ya quitó las comillas exteriores
+                    // Separa por "," pero sin romper comillas internas
                     String[] arr = rawActs.split("\",\"");
                     for (String s : arr) {
-                        String[] pa = s.split(":", 2);
+                        String clean = trimQuotes(s);
+                        String[] pa  = clean.split(":", 2);
                         Actividad.Tipo tipo = Actividad.Tipo.valueOf(pa[0]);
-                        LocalDate f = LocalDate.parse(pa[1]);
+                        LocalDate   f    = LocalDate.parse(pa[1]);
                         actividades.add(new Actividad(tipo, f));
                     }
                 }
 
+                // Obtener o crear la parcela
                 Parcela parcela = parcelasMap.computeIfAbsent(
-                    codPar, k -> new Parcela(k, 0.0, "")
+                    codParcela,
+                    k -> new Parcela(k, 0.0, "")
                 );
 
+                // Construir el cultivo y asociar actividades
                 Cultivo c = new Cultivo(nombre, variedad, superficie, parcela, fecha, est);
                 actividades.forEach(c::addActividad);
                 parcela.addCultivo(c);
+
                 cultivos.add(c);
             }
         }
@@ -67,41 +64,69 @@ public class CSVHandler {
     }
 
     /**
-     * Escribe la lista de cultivos en un CSV usando OpenCSV.
+     * Guarda la lista de cultivos en el CSV, respetando el formato original.
      */
-    public static void guardarCultivos(List<Cultivo> cultivos, String filePath) 
-            throws IOException {
-        try (CSVWriter writer = new CSVWriterBuilder(new FileWriter(filePath))
-                                  .withSeparator(',')
-                                  .withQuoteChar('\"')
-                                  .build()) {
+    public static void guardarCultivos(List<Cultivo> cultivos, String filePath) throws IOException {
+        try (BufferedWriter bw = new BufferedWriter(new FileWriter(filePath))) {
             for (Cultivo c : cultivos) {
-                // reconstruir el campo de actividades
-                StringBuilder actsBuilder = new StringBuilder("[");
+                StringBuilder sb = new StringBuilder();
+                sb.append("Cultivo,")
+                  .append("\"").append(c.getNombre()).append("\",")
+                  .append("\"").append(c.getVariedad()).append("\",")
+                  .append(c.getSuperficie()).append(",")
+                  .append("\"").append(c.getParcela().getCodigo()).append("\",")
+                  .append("\"").append(c.getFechaSiembra()).append("\",")
+                  .append("\"").append(c.getEstadoEnum()).append("\",")
+                  .append("[");
+
                 List<Actividad> acts = c.getActividades();
                 for (int i = 0; i < acts.size(); i++) {
                     Actividad a = acts.get(i);
-                    actsBuilder.append(a.getTipo())
-                               .append(":")
-                               .append(a.getFecha());
-                    if (i < acts.size() - 1) actsBuilder.append("\",\"");
+                    sb.append("\"")
+                      .append(a.getTipo()).append(":").append(a.getFecha())
+                      .append("\"");
+                    if (i < acts.size() - 1) sb.append(",");
                 }
-                actsBuilder.append("]");
+                sb.append("]");
 
-                String[] line = new String[] {
-                    "Cultivo",
-                    c.getNombre(),
-                    c.getVariedad(),
-                    String.valueOf(c.getSuperficie()),
-                    c.getParcela().getCodigo(),
-                    c.getFechaSiembra().toString(),
-                    c.getEstadoEnum().name(),
-                    actsBuilder.toString()
-                };
-
-                writer.writeNext(line, false);
+                bw.write(sb.toString());
+                bw.newLine();
             }
         }
+    }
+
+    /**
+     * Quita comillas dobles al inicio o al final de la cadena, si existen.
+     */
+    private static String trimQuotes(String s) {
+        if (s == null || s.isEmpty()) return s;
+        int start = 0, end = s.length();
+        if (s.charAt(0) == '\"')         start++;
+        if (s.charAt(s.length() - 1) == '\"') end--;
+        return s.substring(start, end);
+    }
+
+    /**
+     * Parte la línea CSV en sus campos, respetando comillas.
+     */
+    private static String[] splitCSV(String line) {
+        List<String> res = new ArrayList<>();
+        StringBuilder cur = new StringBuilder();
+        boolean inQuotes = false;
+        for (int i = 0; i < line.length(); i++) {
+            char c = line.charAt(i);
+            if (c == '\"') {
+                inQuotes = !inQuotes;
+                cur.append(c);
+            } else if (c == ',' && !inQuotes) {
+                res.add(cur.toString());
+                cur.setLength(0);
+            } else {
+                cur.append(c);
+            }
+        }
+        res.add(cur.toString());
+        return res.toArray(new String[0]);
     }
 }
 
