@@ -18,7 +18,7 @@ Aplicación desarrollada en **Java 16+** que implementa un sistema de gestión i
 
 | Nombre         | Correo electrónico        | GitHub                                 |
 | -------------- | ------------------------- | -------------------------------------- |
-| Cristobal Segu | csegu@alumnos.uai.cl      | [@usuario](https://github.com/usuario) |
+| Cristobal Segu | csegu@alumnos.uai.cl      | [@Cseguuu](https://github.com/usuario) |
 | Diego Soler    | disoler@alumnos.uai.cl    | [@Dxeg0o](https://github.com/Dxeg0o)   |
 | Alonso Paniate | apaniate@alumnos.uai.cl   | [@Alonso0k](https://github.com/Alonso0k) |
 | Felipe Retamal | felretamal@alumnos.uai.cl | [@feliperetamalj](https://github.com/feliperetamalj) |
