@@ -20,8 +20,8 @@ Aplicación desarrollada en **Java 16+** que implementa un sistema de gestión i
 | -------------- | ------------------------- | -------------------------------------- |
 | Cristobal Segu | csegu@alumnos.uai.cl      | [@usuario](https://github.com/usuario) |
 | Diego Soler    | disoler@alumnos.uai.cl    | [@Dxeg0o](https://github.com/Dxeg0o)   |
-| Alonso Paniate | apaniate@alumnos.uai.cl   | [@usuario](https://github.com/usuario) |
-| Felipe Retamal | felretamal@alumnos.uai.cl | [@usuario](https://github.com/usuario) |
+| Alonso Paniate | apaniate@alumnos.uai.cl   | [@Alonso0k](https://github.com/Alonso0k) |
+| Felipe Retamal | felretamal@alumnos.uai.cl | [@feliperetamalj](https://github.com/feliperetamalj) |
 
 ## 📝 Equipo académico
 
@@ -51,32 +51,34 @@ Aplicación desarrollada en **Java 16+** que implementa un sistema de gestión i
    cd App2
    ```
 
-2. **Compilar el proyecto**
 
-   ```bash
-   mkdir -p bin
-   javac -d bin src/models/*.java src/services/*.java src/ui/*.java src/App2.java
-   ```
-
-3. **Ejecutar la aplicación**
-   ```bash
-   java -cp bin App2 cultivos.csv
-   ```
+   # (1) Limpia compilaciones previas
+>> mvn clean
+>>
+>> # (2) Compila todo el código
+>> mvn compile
+>>
+>> # (3) Arranca el GUI pasándole “cultivos.csv” como argumento
+>> mvn javafx:run
+>>
 
 ## 📂 Estructura del proyecto
 
 ```
 App2/
 ├── src/
-│   ├── models/          # Clases de dominio (Cultivo, Parcela, Actividad...)
+│   ├── models/          # Clases de dominio (Cultivo, Parcela, Actividad…)
 │   ├── services/        # Lógica de negocio y manejo de CSV
-│   ├── ui/              # Menús y control de interacción por consola
+│   ├── ui/              # Menús / ventanas JavaFX
+│   │   ├── ActividadRow.java   # Wrapper para mostrar Actividad en TableView
+│   │   └── ActividadWindow.java
 │   └── App2.java        # Clase principal con punto de entrada
 ├── bin/                 # Archivos compilados (.class)
 ├── docs/
 │   ├── diagrama_clases.png
 │   └── informe_diseno.pdf
-├── cultivos.csv         # Archivo de persistencia de datos
+├── cultivos.csv         # Archivo de persistencia de cultivos
+├── actividades.csv      # Archivo de persistencia de actividades
 └── README.md
 ```
 
@@ -112,6 +114,21 @@ App2/
 - Fecha de siembra
 - Estado (ACTIVO, EN_RIESGO, COSECHADO)
 - Lista de actividades con fechas (formato JSON simple)
+
+## 📦 Persistencia de Datos — `CSVHandler`
+
+A partir de esta iteración la información se divide en **dos** archivos CSV para mejorar la escalabilidad y simplificar los filtros en la interfaz.
+
+| Archivo          | Funciones de lectura/escritura                  | Columnas                                |
+| ---------------- | ----------------------------------------------- | --------------------------------------- |
+| `cultivos.csv`   | `leerCultivos()` / `guardarCultivos()`          | `nombre;variedad;superficie;parcela;fechaSiembra;estado` |
+| `actividades.csv`| `leerActividades()` / `guardarActividades()`    | `cultivo;tipo;fecha;estado`             |
+
+### Flujo resumido
+1. Al iniciar, `leerCultivos()` crea los objetos **`Cultivo`**.  
+2. Luego `leerActividades()` vincula cada actividad al cultivo correspondiente.  
+3. Cuando el usuario presiona **Guardar** o **Completar**, se llama a `guardarCultivos()` y `guardarActividades()` para sincronizar ambos archivos.
+Esto se hace, para poder guardar nuevas parcelas y guardar nuevas actividades o marcarlas como completadas, ya que al el .csv inicial estar centrado en los cultivos, sin estos .csv no era posible guardar estos nuevos datos sin agregar de forma simultanea un cultivo asociado.
 
 ## 3. Nuevos Requerimientos y Detalles de la Entrega
 
