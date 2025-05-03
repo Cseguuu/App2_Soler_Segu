@@ -2,6 +2,7 @@ package ui;
 
 import javafx.beans.property.ReadOnlyStringWrapper;
 import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
@@ -10,9 +11,7 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.stage.Stage;
-import models.Cultivo;
-import models.EstadoCultivo;
-import models.Parcela;
+import models.*;
 import services.CultivoService;
 import services.ParcelaService;
 import utils.CSVHandler;
@@ -21,149 +20,158 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
+/**
+ * Ventana JavaFX para la gestión de cultivos
+ * (ahora muestra la parcela a la que pertenece cada cultivo).
+ */
 public class CultivoWindow extends Stage {
+
     private final CultivoService cs;
     private final ParcelaService ps;
-    private TableView<Cultivo> table;
+    private final TableView<Cultivo> table = new TableView<>();
 
     public CultivoWindow(CultivoService cs, ParcelaService ps) {
-        this.cs = cs;
-        this.ps = ps;
+        this.cs = cs; this.ps = ps;
         setTitle("Gestión de Cultivos");
-        initUI();
-        listar();  // carga inicial
+        initUI();  listar();
     }
+
+    /* ═════════════════════════ UI ═════════════════════════ */
 
     private void initUI() {
         BorderPane root = new BorderPane();
 
-        HBox btnBar = new HBox(5);
-        btnBar.setPadding(new Insets(10));
-        Button btnListar   = new Button("Listar");   btnListar.setOnAction(e -> listar());
-        Button btnCrear    = new Button("Crear");    btnCrear.setOnAction(e -> crear());
-        Button btnEditar   = new Button("Editar");   btnEditar.setOnAction(e -> editar());
-        Button btnEliminar = new Button("Eliminar"); btnEliminar.setOnAction(e -> eliminar());
-        Button btnCerrar   = new Button("Cerrar");   btnCerrar.setOnAction(e -> close());
-        btnBar.getChildren().addAll(btnListar, btnCrear, btnEditar, btnEliminar, btnCerrar);
-        root.setTop(btnBar);
+        /* barra de botones */
+        HBox bar = new HBox(6);
+        bar.setPadding(new Insets(10));
+        Button bList = new Button("Listar");
+        Button bNew  = new Button("Nuevo");
+        Button bEdit = new Button("Editar");
+        Button bDel  = new Button("Eliminar");
+        Button bExit = new Button("Cerrar");
+        bar.getChildren().addAll(bList, bNew, bEdit, bDel, bExit);
+        root.setTop(bar);
 
-        table = new TableView<>();
-        TableColumn<Cultivo, String> colNom = new TableColumn<>("Nombre");
-        colNom.setCellValueFactory(new PropertyValueFactory<>("nombre"));
-        TableColumn<Cultivo, String> colVar = new TableColumn<>("Variedad");
-        colVar.setCellValueFactory(new PropertyValueFactory<>("variedad"));
-        TableColumn<Cultivo, Double> colSup = new TableColumn<>("Superficie");
-        colSup.setCellValueFactory(new PropertyValueFactory<>("superficie"));
-        TableColumn<Cultivo, LocalDate> colFec = new TableColumn<>("Fecha Siembra");
-        colFec.setCellValueFactory(new PropertyValueFactory<>("fechaSiembra"));
-        TableColumn<Cultivo, String> colEst = new TableColumn<>("Estado");
-        colEst.setCellValueFactory(c ->
-            new ReadOnlyStringWrapper(c.getValue().getEstado())
-        );
-        table.getColumns().addAll(colNom, colVar, colSup, colFec, colEst);
+        /* tabla */
+        TableColumn<Cultivo, String> cNom = new TableColumn<>("Nombre");
+        cNom.setCellValueFactory(c -> new ReadOnlyStringWrapper(c.getValue().getNombre()));
+
+        TableColumn<Cultivo, String> cVar = new TableColumn<>("Variedad");
+        cVar.setCellValueFactory(c -> new ReadOnlyStringWrapper(c.getValue().getVariedad()));
+
+        TableColumn<Cultivo, Double> cSup = new TableColumn<>("Superficie");
+        cSup.setCellValueFactory(new PropertyValueFactory<>("superficie"));
+
+        TableColumn<Cultivo, String> cPar = new TableColumn<>("Parcela");
+        cPar.setCellValueFactory(c -> new ReadOnlyStringWrapper(
+                c.getValue().getParcela() != null ? c.getValue().getParcela().getCodigo() : "—"));
+
+        TableColumn<Cultivo, LocalDate> cFec = new TableColumn<>("Fecha Siembra");
+        cFec.setCellValueFactory(new PropertyValueFactory<>("fechaSiembra"));
+
+        TableColumn<Cultivo, String> cEst = new TableColumn<>("Estado");
+        cEst.setCellValueFactory(c -> new ReadOnlyStringWrapper(c.getValue().getEstado()));
+
+        table.getColumns().addAll(cNom, cVar, cSup, cPar, cFec, cEst);
         root.setCenter(table);
 
-        setScene(new Scene(root, 600, 400));
+        /* wiring */
+        bList.setOnAction(e -> listar());
+        bNew .setOnAction(e -> crear());
+        bEdit.setOnAction(e -> editar());
+        bDel .setOnAction(e -> eliminar());
+        bExit.setOnAction(e -> close());
+
+        setScene(new Scene(root, 760, 420));
     }
 
+    /* ═════════════════════ operaciones ═════════════════════ */
+
     private void listar() {
-        List<Cultivo> lista = cs.getCultivos();
-        table.setItems(FXCollections.observableArrayList(lista));
+        ObservableList<Cultivo> data = FXCollections.observableArrayList(cs.getCultivos());
+        table.setItems(data);
     }
 
     private void crear() {
-        Dialog<Cultivo> dlg = new Dialog<>();
-        dlg.setTitle("Crear Cultivo");
-        ButtonType ok = new ButtonType("Crear", ButtonBar.ButtonData.OK_DONE);
-        dlg.getDialogPane().getButtonTypes().addAll(ok, ButtonType.CANCEL);
-
-        GridPane grid = new GridPane();
-        grid.setHgap(10); grid.setVgap(10); grid.setPadding(new Insets(20));
-        TextField tfNombre = new TextField();   grid.add(new Label("Nombre:"), 0, 0); grid.add(tfNombre, 1, 0);
-        TextField tfVar    = new TextField();   grid.add(new Label("Variedad:"),0,1); grid.add(tfVar,1,1);
-        TextField tfSup    = new TextField();   grid.add(new Label("Superficie:"),0,2); grid.add(tfSup,1,2);
-        ComboBox<Parcela> cbPar = new ComboBox<>(FXCollections.observableArrayList(ps.getParcelas().values()));
-        grid.add(new Label("Parcela:"),0,3); grid.add(cbPar,1,3);
-        DatePicker dpFecha  = new DatePicker();  grid.add(new Label("Fecha Siembra:"),0,4); grid.add(dpFecha,1,4);
-        ComboBox<EstadoCultivo> cbEst = new ComboBox<>(FXCollections.observableArrayList(EstadoCultivo.values()));
-        grid.add(new Label("Estado:"),0,5); grid.add(cbEst,1,5);
-
-        dlg.getDialogPane().setContent(grid);
-        dlg.setResultConverter(b -> {
-            if (b == ok) {
-                return new Cultivo(
-                  tfNombre.getText(),
-                  tfVar.getText(),
-                  Double.parseDouble(tfSup.getText()),
-                  cbPar.getValue(),
-                  dpFecha.getValue(),
-                  cbEst.getValue()
-                );
-            }
-            return null;
-        });
-
-        Optional<Cultivo> res = dlg.showAndWait();
-        res.ifPresent(c -> {
-            cs.agregarCultivo(
-              c.getNombre(), c.getVariedad(), c.getSuperficie(),
-              c.getParcela(), c.getFechaSiembra(), c.getEstadoEnum()
-            );
-            listar();
-            salvar();
+        Dialog<Cultivo> dlg = dialogoCultivo(null);
+        dlg.showAndWait().ifPresent(c -> {
+            cs.agregarCultivo(c);   // usa nuevo método
+            listar(); salvar();
         });
     }
 
     private void editar() {
         Cultivo sel = table.getSelectionModel().getSelectedItem();
         if (sel == null) return;
-        Dialog<Void> dlg = new Dialog<>();
-        dlg.setTitle("Editar Cultivo");
-        ButtonType ok = new ButtonType("Guardar", ButtonBar.ButtonData.OK_DONE);
-        dlg.getDialogPane().getButtonTypes().addAll(ok, ButtonType.CANCEL);
 
-        GridPane grid = new GridPane();
-        grid.setHgap(10); grid.setVgap(10); grid.setPadding(new Insets(20));
-        TextField tfNombre = new TextField(sel.getNombre());    grid.add(new Label("Nombre:"),0,0); grid.add(tfNombre,1,0);
-        TextField tfVar    = new TextField(sel.getVariedad());  grid.add(new Label("Variedad:"),0,1); grid.add(tfVar,1,1);
-        TextField tfSup    = new TextField(String.valueOf(sel.getSuperficie())); grid.add(new Label("Superficie:"),0,2); grid.add(tfSup,1,2);
-        ComboBox<Parcela> cbPar = new ComboBox<>(FXCollections.observableArrayList(ps.getParcelas().values()));
-        cbPar.setValue(sel.getParcela()); grid.add(new Label("Parcela:"),0,3); grid.add(cbPar,1,3);
-        DatePicker dpFecha = new DatePicker(sel.getFechaSiembra()); grid.add(new Label("Fecha Siembra:"),0,4); grid.add(dpFecha,1,4);
-        ComboBox<EstadoCultivo> cbEst = new ComboBox<>(FXCollections.observableArrayList(EstadoCultivo.values()));
-        cbEst.setValue(sel.getEstadoEnum()); grid.add(new Label("Estado:"),0,5); grid.add(cbEst,1,5);
-
-        dlg.getDialogPane().setContent(grid);
-        dlg.setResultConverter(b -> null);
-        Optional<Void> r = dlg.showAndWait();
-        if (r.isPresent()) {
-            cs.editarCultivo(
-              sel,
-              tfNombre.getText(), tfVar.getText(),
-              Double.parseDouble(tfSup.getText()),
-              dpFecha.getValue(), cbEst.getValue()
-            );
+        Dialog<Cultivo> dlg = dialogoCultivo(sel);
+        dlg.showAndWait().ifPresent(c -> {
+            cs.reemplazarCultivo(sel, c);   // usa nuevo método
             listar(); salvar();
-        }
+        });
     }
 
     private void eliminar() {
         Cultivo sel = table.getSelectionModel().getSelectedItem();
         if (sel == null) return;
-        Alert a = new Alert(Alert.AlertType.CONFIRMATION, "Eliminar cultivo?", ButtonType.YES, ButtonType.NO);
-        a.showAndWait().ifPresent(b -> {
-            if (b == ButtonType.YES) {
-                cs.eliminarCultivo(sel);
-                listar(); salvar();
-            }
-        });
+
+        Alert a = new Alert(Alert.AlertType.CONFIRMATION,
+                "¿Eliminar cultivo \"" + sel.getNombre() + "\"?",
+                ButtonType.YES, ButtonType.NO);
+        a.showAndWait().filter(b -> b == ButtonType.YES)
+                       .ifPresent(b -> { cs.eliminarCultivo(sel); listar(); salvar(); });
     }
+
+    /* ═════════════ diálogo de alta / edición ═════════════ */
+
+    private Dialog<Cultivo> dialogoCultivo(Cultivo base) {
+        boolean edit = base != null;
+
+        Dialog<Cultivo> dlg = new Dialog<>();
+        dlg.setTitle(edit ? "Editar Cultivo" : "Nuevo Cultivo");
+        ButtonType OK = new ButtonType(edit ? "Guardar" : "Crear", ButtonBar.ButtonData.OK_DONE);
+        dlg.getDialogPane().getButtonTypes().addAll(OK, ButtonType.CANCEL);
+
+        GridPane g = new GridPane(); g.setHgap(10); g.setVgap(8); g.setPadding(new Insets(10));
+
+        TextField tfNom = new TextField(edit ? base.getNombre() : "");
+        TextField tfVar = new TextField(edit ? base.getVariedad() : "");
+        TextField tfSup = new TextField(edit ? String.valueOf(base.getSuperficie()) : "");
+        ComboBox<Parcela> cbPar = new ComboBox<>(FXCollections.observableArrayList(ps.getParcelas().values()));
+        cbPar.setValue(edit ? base.getParcela() : null);
+        DatePicker dpFec = new DatePicker(edit ? base.getFechaSiembra() : LocalDate.now());
+        ComboBox<EstadoCultivo> cbEst = new ComboBox<>(FXCollections.observableArrayList(EstadoCultivo.values()));
+        cbEst.setValue(edit ? base.getEstadoEnum() : cbEst.getItems().get(0));
+
+
+        g.addRow(0, new Label("Nombre:"),    tfNom);
+        g.addRow(1, new Label("Variedad:"),  tfVar);
+        g.addRow(2, new Label("Superficie:"),tfSup);
+        g.addRow(3, new Label("Parcela:"),   cbPar);
+        g.addRow(4, new Label("Fecha:"),     dpFec);
+        g.addRow(5, new Label("Estado:"),    cbEst);
+
+        dlg.getDialogPane().setContent(g);
+
+        dlg.setResultConverter(bt -> {
+            if (bt != OK) return null;
+            return new Cultivo(
+                    tfNom.getText().trim(),
+                    tfVar.getText().trim(),
+                    Double.parseDouble(tfSup.getText()),
+                    cbPar.getValue(),
+                    dpFec.getValue(),
+                    cbEst.getValue()
+            );
+        });
+        return dlg;
+    }
+
+    /* ═════════════════════ persistencia ═══════════════════ */
 
     private void salvar() {
         try {
             CSVHandler.guardarCultivos(cs.getCultivos(), "cultivos.csv");
-        } catch (Exception ex) {
-            ex.printStackTrace();
-        }
+        } catch (Exception ex) { ex.printStackTrace(); }
     }
 }
