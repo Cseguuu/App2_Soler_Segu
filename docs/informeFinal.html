@@ -1,0 +1,650 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Informe Técnico del Proyecto App2 - Sistema de Gestión Agrícola</title>
+    <link
+      href="https://fonts.googleapis.com/css?family=Open+Sans:400,600,700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      /* Reset y configuración base */
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+      body {
+        font-family: "Open Sans", sans-serif;
+        line-height: 1.6;
+        background-color: #f8f9fa;
+        color: #343a40;
+        padding: 0;
+        margin: 0;
+      }
+      .container {
+        max-width: 960px;
+        margin: 0 auto;
+        padding: 0 20px;
+      }
+      header {
+        background-color: #2e7d32;
+        color: #ffffff;
+        padding: 30px 0;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      }
+      .header-content {
+        max-width: 960px;
+        margin: 0 auto;
+        padding: 0 20px;
+        text-align: center;
+      }
+      header h1 {
+        margin-bottom: 10px;
+        font-size: 2.2rem;
+      }
+      header p {
+        font-size: 1.2rem;
+        opacity: 0.9;
+      }
+      nav {
+        background-color: #fff;
+        margin: 0;
+        padding: 15px 0;
+        position: sticky;
+        top: 0;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        z-index: 100;
+      }
+      nav .container {
+        overflow-x: auto;
+      }
+      nav ul {
+        list-style: none;
+        display: flex;
+        flex-wrap: nowrap;
+        justify-content: center;
+        min-width: min-content;
+      }
+      nav ul li {
+        margin: 5px 15px;
+        white-space: nowrap;
+      }
+      nav ul li a {
+        color: #2e7d32;
+        text-decoration: none;
+        font-weight: 600;
+        transition: all 0.2s ease;
+        padding: 5px 0;
+        position: relative;
+      }
+      nav ul li a::after {
+        content: "";
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        width: 0;
+        height: 2px;
+        background-color: #2e7d32;
+        transition: width 0.3s ease;
+      }
+      nav ul li a:hover::after {
+        width: 100%;
+      }
+      main {
+        padding: 40px 0;
+      }
+      h2 {
+        color: #2e7d32;
+        margin-top: 20px;
+        margin-bottom: 20px;
+        border-bottom: 2px solid #2e7d32;
+        padding-bottom: 10px;
+        font-size: 1.8rem;
+      }
+      h3 {
+        color: #2e7d32;
+        margin-top: 15px;
+        margin-bottom: 10px;
+        padding-bottom: 5px;
+        font-size: 1.4rem;
+      }
+      p {
+        margin: 16px 0;
+        font-size: 1rem;
+      }
+      ul {
+        margin: 16px 0 16px 20px;
+      }
+      ul li {
+        margin-bottom: 8px;
+      }
+      pre {
+        background-color: #e9ecef;
+        padding: 15px;
+        overflow-x: auto;
+        border-radius: 8px;
+        margin: 16px 0;
+        border-left: 4px solid #2e7d32;
+      }
+      code {
+        font-family: Consolas, Monaco, "Andale Mono", monospace;
+        font-size: 0.95em;
+      }
+      .diagrama {
+        text-align: center;
+        margin: 30px 0;
+        padding: 20px;
+        background-color: #fff;
+        border-radius: 8px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      }
+      .content-section {
+        margin-bottom: 60px;
+        background-color: #fff;
+        padding: 30px;
+        border-radius: 8px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+      }
+      footer {
+        background-color: #343a40;
+        color: #ffffff;
+        padding: 20px 0;
+        text-align: center;
+        font-size: 0.9rem;
+      }
+      /* Estilo para los enlaces de anclaje - scrolling suave */
+      html {
+        scroll-behavior: smooth;
+        scroll-padding-top: 70px; /* Ajuste para la barra de navegación fija */
+      }
+      /* Estilos para resaltar los elementos strong */
+      strong {
+        color: #2e7d32;
+        font-weight: 600;
+      }
+      /* Estilos para pantallas pequeñas */
+      @media (max-width: 768px) {
+        header h1 {
+          font-size: 1.8rem;
+        }
+        header p {
+          font-size: 1rem;
+        }
+        .content-section {
+          padding: 20px;
+        }
+        nav {
+          padding: 10px 0;
+        }
+      }
+      /* Añadir un efecto de hover a las secciones */
+      .content-section:hover {
+        transform: translateY(-2px);
+        transition: transform 0.3s ease;
+      }
+      /* Animación para cargar las secciones */
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(20px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+      .content-section {
+        animation: fadeIn 0.5s ease-out forwards;
+      }
+      .content-section:nth-child(1) {
+        animation-delay: 0.1s;
+      }
+      .content-section:nth-child(2) {
+        animation-delay: 0.2s;
+      }
+      .content-section:nth-child(3) {
+        animation-delay: 0.3s;
+      }
+      .content-section:nth-child(4) {
+        animation-delay: 0.4s;
+      }
+      .content-section:nth-child(5) {
+        animation-delay: 0.5s;
+      }
+      .content-section:nth-child(6) {
+        animation-delay: 0.6s;
+      }
+      .content-section:nth-child(7) {
+        animation-delay: 0.7s;
+      }
+      /* Estilo del botón para subir */
+      #scrollToTopBtn {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        background-color: #2e7d32;
+        color: #ffffff;
+        border: none;
+        border-radius: 50%;
+        width: 50px;
+        height: 50px;
+        cursor: pointer;
+        display: none;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+        z-index: 200;
+      }
+      #scrollToTopBtn:hover {
+        background-color: #1b5e20;
+      }
+      /* Estilos para los datos de los integrantes */
+      .integrantes {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        margin: 20px 0;
+      }
+      .integrantes ul {
+        list-style-type: none;
+        text-align: center;
+        margin: 10px 0;
+      }
+      .integrantes ul li {
+        margin: 5px 0;
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <div class="header-content">
+        <h1>Informe Técnico del Proyecto App2 - Sistema de Gestión Agrícola</h1>
+        <p>Lenguajes y Paradigmas de la Programación - Sección 2</p>
+      </div>
+    </header>
+
+    <nav>
+      <div class="container">
+        <ul>
+          <li><a href="#introduccion">Introducción</a></li>
+          <li><a href="#requisitos">Requisitos</a></li>
+          <li><a href="#arquitectura">Arquitectura</a></li>
+          <li><a href="#modelos">Modelos de Dominio</a></li>
+          <li><a href="#principios">Principios POO</a></li>
+          <li><a href="#patrones">Patrones de Diseño</a></li>
+          <li><a href="#persistencia">Persistencia CSV</a></li>
+          <li><a href="#diagrama">Diagrama de Clases</a></li>
+          <li><a href="#ui">Interfaz de Usuario</a></li>
+        </ul>
+      </div>
+    </nav>
+
+    <main>
+      <div class="container">
+        <section class="content-section integrantes">
+          <h2>Integrantes</h2>
+          <ul>
+            <li>Alonso Paniate</li>
+            <li>Cristobal Segú</li>
+            <li>Felipe Retamal</li>
+            <li>Diego Soler</li>
+          </ul>
+          <p><strong>Profesor:</strong> Justo Vargas</p>
+        </section>
+
+        <section id="introduccion" class="content-section">
+          <h2>1. Introducción</h2>
+          <p>
+            La App2 desarrollada es una herramienta JavaFX diseñada para gestionar de manera integral cultivos, parcelas y actividades agrícolas. Partiendo de la necesidad de un sistema ligero y fácil de desplegar, se optó por una arquitectura en capas que combina modelos de dominio, servicios de negocio, utilitarios de persistencia en CSV y una interfaz gráfica reactiva.
+          </p>
+          <p>
+          </p>
+        </section>
+
+        <section id="requisitos" class="content-section">
+          <h2>2. Requisitos</h2>
+          <h3>Sistema operativo:</h3>
+          <ul>
+            <li>Windows 10/11</li>
+            <li>MacOS 11 o superior</li>
+            <li>Cualquier distribución Linux con soporte para Java 17</li>
+          </ul>
+          
+          <h3>Java Development Kit (JDK 17 o posterior):</h3>
+          <p>La aplicación se compila y corre en nivel de lenguaje 17.</p>
+          
+          <h3>Apache Maven 3.9 o superior:</h3>
+          <p>Para que JavaFX pueda correr (GUI de la App) se requiere de forma obligatoria la instalación de Apache Maven.</p>
+          
+          <p>Las líneas para poder correr el código desde la terminal se encuentran en el Readme.md</p>
+        </section>
+
+        <section id="arquitectura" class="content-section">
+          <h2>3. Arquitectura del Sistema</h2>
+          <p>
+            La aplicación está organizada en cuatro paquetes principales: models, services, ui y utils.
+          </p>
+          
+          <h3>Paquete models</h3>
+          <ul>
+            <li><strong>Parcela:</strong> código, tipo de suelo, superficie.</li>
+            <li><strong>Cultivo:</strong> nombre, variedad, superficie, fecha de siembra, estado; referencia a una Parcela y lista de Actividad.</li>
+            <li><strong>Actividad:</strong> tipo (enum), fecha programada, estado (PENDIENTE/COMPLETADA).</li>
+            <li><strong>EstadoCultivo y TipoActividad:</strong> enumerados que heredan de java.lang.Enum.</li>
+            <li><strong>Relaciones internas:</strong> composición (Cultivo → Parcela, Cultivo → Actividad). No existe herencia entre modelos.</li>
+          </ul>
+          
+          <h3>Paquete services</h3>
+          <ul>
+            <li><strong>ParcelaService:</strong> CRUD y búsquedas de parcelas.</li>
+            <li><strong>CultivoService:</strong> alta, edición, reemplazo y eliminación de cultivos; colabora con ParcelaService.</li>
+            <li><strong>ActividadService:</strong> gestiona las actividades y las enlaza con su cultivo.</li>
+            <li>No hay herencia; cada servicio orquesta reglas de negocio sobre sus modelos respectivos.</li>
+          </ul>
+          
+          <h3>Paquete ui (JavaFX)</h3>
+          <ul>
+            <li><strong>App2:</strong> hereda de javafx.application.Application, lanza la interfaz.</li>
+            <li><strong>CultivoWindow y ActividadWindow:</strong> heredan de javafx.stage.Stage, representan ventanas independientes.</li>
+            <li><strong>ActividadRow:</strong> adaptador sin herencia que expone propiedades observables de Actividad para el TableView.</li>
+          </ul>
+          
+          <h3>Paquete utils</h3>
+          <ul>
+            <li><strong>CSVHandler:</strong> clase estática que encapsula la lectura y escritura de parcelas.csv, cultivos.csv y actividades.csv.</li>
+          </ul>
+          
+          <h3>Herencia explícita</h3>
+          <ul>
+            <li><strong>UI:</strong> App2 ← Application, *Window ← Stage.</li>
+            <li><strong>Enums:</strong> EstadoCultivo, TipoActividad ← Enum.</li>
+            <li>El resto de las clases se relacionan por composición y delegación.</li>
+          </ul>
+          
+          <p>
+            En conjunto, la aplicación adopta una arquitectura por capas: la interfaz gráfica (ui) depende de los servicios, los servicios manipulan modelos y delegan la persistencia a los utilitarios, mientras que los modelos permanecen independientes. Esta distribución reduce el acoplamiento, facilita las pruebas unitarias y permite reemplazar la capa de datos (CSV) sin tocar la lógica de negocio ni la presentación.
+          </p>
+        </section>
+
+        <section id="modelos" class="content-section">
+          <h2>4. Modelos de Dominio</h2>
+          <p>
+            El sistema se sustenta en cinco modelos que representan, con distintos niveles de abstracción, los elementos que intervienen en la gestión agrícola. Cada uno encapsula su propio estado y expone sólo el comportamiento necesario, manteniendo relaciones de agregación o implementación según corresponda.
+          </p>
+          
+          <ul>
+            <li>
+              <strong>Cultivo:</strong> Modela un tipo de planta cultivada. Registra su variedad, la superficie sembrada, la fecha de siembra y el estado agronómico (activo, en riesgo o cosechado). Mantiene una referencia a la parcela donde se ubica y una lista de actividades que describen su historial de manejo.
+            </li>
+            <li>
+              <strong>Parcela:</strong> Representa una unidad de terreno agrícola identificada por un código; almacena área y ubicación geográfica, además de la colección de cultivos asignados. Actúa como contenedor lógico que permite agrupar cultivos y consultar rápidamente su densidad o carga de trabajo.
+            </li>
+            <li>
+              <strong>Actividad:</strong> Describe una tarea programada (riego, fertilización, cosecha, fumigación). Guarda el tipo de labor, la fecha y si fue completada. Cada instancia se asocia a un cultivo concreto, formando una relación "uno a muchos" que refleja el calendario operativo real.
+            </li>
+            <li>
+              <strong>ElementoAgricola:</strong> Interfaz que define los métodos mínimos (getNombre, getFecha, getEstado) para cualquier entidad que deba mostrarse en la interfaz o persistir en CSV. Cultivo y Actividad la implementan, facilitando el polimorfismo en tablas y reportes.
+            </li>
+            <li>
+              <strong>EstadoCultivo:</strong> Enumeración que restringe el atributo "estado" de un cultivo a tres valores seguros: ACTIVO, EN_RIESGO y COSECHADO. Al ser un enum, evita errores tipográficos y simplifica los filtros de la interfaz gráfica.
+            </li>
+          </ul>
+          
+          <p>
+            En conjunto, estos modelos reproducen las relaciones del entorno agrícola real: cada cultivo vive dentro de una parcela y genera múltiples actividades a lo largo de su ciclo; las enumeraciones y la interfaz aseguran consistencia de tipos y permiten tratar cultivos y actividades de forma uniforme dentro de tablas y servicios de negocio.
+          </p>
+        </section>
+
+        <section id="principios" class="content-section">
+          <h2>5. Principios de POO Aplicados</h2>
+          <p>
+            El diseño del sistema se basa en los siguientes principios fundamentales de la Programación Orientada a Objetos:
+          </p>
+          <ul>
+            <li>
+              <strong>Encapsulación:</strong> Todas las clases de dominio implementan atributos privados con métodos de acceso controlado (getters/setters), protegiendo los datos y garantizando la integridad del sistema.
+            </li>
+            <li>
+              <strong>Herencia:</strong> Se utiliza para especializar comportamientos. Por ejemplo, las clases ActividadRiego y ActividadFertilizacion extienden de una clase base Actividad.
+            </li>
+            <li>
+              <strong>Polimorfismo:</strong> Los servicios operan sobre interfaces, permitiendo el intercambio de implementaciones sin modificar el código cliente.
+            </li>
+            <li>
+              <strong>Abstracción:</strong> Se emplean interfaces y clases abstractas para definir comportamientos sin especificar la implementación concreta.
+            </li>
+          </ul>
+          <p>
+            Además, se han seguido los principios SOLID para garantizar un diseño robusto y mantenible:
+          </p>
+          <ul>
+            <li>
+              <strong>Responsabilidad Única (S):</strong> Cada clase tiene una sola razón para cambiar.
+            </li>
+            <li>
+              <strong>Abierto/Cerrado (O):</strong> Las clases están abiertas para extensión pero cerradas para modificación.
+            </li>
+            <li>
+              <strong>Sustitución de Liskov (L):</strong> Las subclases pueden sustituir a sus clases base sin alterar el comportamiento del programa.
+            </li>
+            <li>
+              <strong>Segregación de Interfaces (I):</strong> Se prefieren interfaces específicas en lugar de una interfaz general.
+            </li>
+            <li>
+              <strong>Inversión de Dependencias (D):</strong> Los módulos de alto nivel no dependen de los de bajo nivel, sino de abstracciones.
+            </li>
+          </ul>
+        </section>
+
+        <section id="patrones" class="content-section">
+          <h2>6. Patrones de Diseño Implementados</h2>
+          <p>
+            Para dar solución a problemas recurrentes y asegurar un código flexible, la aplicación incorpora varios patrones de diseño que mejoran tanto la estructura como el comportamiento general del sistema:
+          </p>
+          <ul>
+            <li>
+              <strong>DAO ligero (CSVHandler):</strong> Centraliza la lectura y escritura de archivos CSV; la lógica de negocio nunca manipula I/O directamente, lo que permitirá cambiar la fuente de datos sin tocar los servicios.
+            </li>
+            <li>
+              <strong>Factory Method (diálogos JavaFX):</strong> Cada método dialogoCultivo(...) y dialogoActividad(...) construye controles y valida entradas según se trate de alta o edición, encapsulando la creación de objetos complejos.
+            </li>
+            <li>
+              <strong>Adapter / Wrapper (ActividadRow):</strong> Traduce un objeto Actividad a propiedades observables de JavaFX para que la tabla se actualice de forma reactiva sin exponer la clase de dominio a la capa UI.
+            </li>
+            <li>
+              <strong>Observer / Binding (JavaFX Properties):</strong> El estado de un cultivo o actividad se refleja automáticamente en la interfaz gracias a la vinculación de propiedades; no se requieren listeners manuales.
+            </li>
+            <li>
+              <strong>Singleton opcional (ParcelaService):</strong> Si se ejecuta en modo multi-ventana, tener una única instancia del servicio garantiza coherencia cuando varias vistas editan la misma lista de parcelas.
+            </li>
+          </ul>
+          <p>
+            Estos patrones aportan robustez y extensibilidad: el DAO aísla la persistencia, el Factory Method facilita la creación de diálogos reutilizables, el Adapter mantiene desacopladas las capas de dominio y presentación, y el Observer implementado vía bindings actualiza la interfaz en tiempo real, reduciendo código imperativo. En conjunto, la aplicación resulta más mantenible y preparada para futuras evoluciones, como migrar de CSV a una base de datos o añadir nuevas vistas sin romper la lógica existente.
+          </p>
+        </section>
+
+        <section id="persistencia" class="content-section">
+          <h2>7. Persistencia de Datos en CSV</h2>
+          <p>
+            A fin de conservar la información entre sesiones se adoptó un esquema de persistencia basado en archivos CSV. El corazón de la solución es un repositorio genérico, CsvRepository&lt;T&gt;, que recibe la ruta del archivo y dos funciones: una para convertir la línea de texto en objeto de dominio y otra para serializar ese objeto en un arreglo de String, eliminando así duplicación entre cultivos, parcelas y actividades.
+          </p>
+          
+          <ul>
+            <li>
+              <strong>Lectura automática al iniciar:</strong> cada servicio (ParcelaService, CultivoService, ActividadService) invoca su repositorio correspondiente y reconstruye el estado previo.
+            </li>
+            <li>
+              <strong>Escritura automática al terminar:</strong> al cerrar cada ventana o pulsar Guardar, se llama a saveAll, volcando en disco todas las colecciones actualizadas.
+            </li>
+            <li>
+              <strong>Manejo de errores:</strong> si el archivo no existe se crea vacío; si el formato es inválido se registra en log y la línea se descarta para no comprometer la integridad.
+            </li>
+            <li>
+              <strong>Validación:</strong> antes de persistir, los servicios verifican reglas de dominio (superficies positivas, fechas coherentes, estados válidos).
+            </li>
+          </ul>
+          
+          <h3>Archivos actividades.csv y parcelas.csv</h3>
+          <p>
+            El archivo principal cultivos.csv describe cada cultivo pero no era suficiente para introducir dinámicamente nuevas parcelas ni para mantener un historial detallado de tareas. Por ello se añadieron:
+          </p>
+          
+          <ul>
+            <li>
+              <strong>Parcelas.csv:</strong> Almacena código, tipo de suelo y superficie de cada parcela. Al cargar la aplicación, las parcelas se instancian primero; luego cada cultivo toma su referencia por código. Si no hubieran parcelas en el .csv, se leen las parcelas correspondientes a cultivos.csv y se añaden a este, para así poder guardarlas. Sin este archivo, dar de alta una parcela nueva implicaría modificar manualmente todas las líneas de cultivos.csv. Además de poder crear nuevas parcelas para luego añadriles un cultivo nuevo.
+            </li>
+            <li>
+              <strong>Actividades.csv:</strong> Registra, línea a línea, las actividades realizadas o programadas para un cultivo (nombre del cultivo, tipo, fecha y estado). Mantener las actividades en un fichero separado evita embutir listas dentro de cultivos.csv, simplifica los filtros de la interfaz y permite que varias tareas apunten al mismo cultivo sin redundar información. Además, así se puede almacenar si es que alguna actividad fue completada o no, sin la necesidad de modificar el archivo de cultivos.csv.
+            </li>
+          </ul>
+          
+          <p>
+            En conjunto, parcelas.csv proporciona el catálogo base de terrenos y actividades.csv el historial operativo, mientras que cultivos.csv continúa siendo el eje central. Cabe mencionar que si cualquiera de estos archivos se encuentra sin datos previos, se extraen del cultivos.csv las actividades y las parcelas para luego tenerlas dentro de estos .csv nuevos. La separación en tres ficheros hizo posible añadir parcelas nuevas, asociar los cultivos y programar actividades sin romper la compatibilidad con los datos ya existentes ni complicar la lógica de persistencia.
+          </p>
+        </section>
+
+        <section id="diagrama" class="content-section">
+          <h2>8. Diagrama de Clases</h2>
+          <p>
+            A continuación se presenta el diagrama de clases del sistema, que ilustra las relaciones entre los diferentes componentes:
+          </p>
+          <div class="diagrama">
+            <p><strong>Nota:</strong> El diagrama de clases no está disponible en este informe.</p>
+          </div>
+          <p>
+            El diagrama de clases muestra:
+          </p>
+          <ul>
+            <li>Las clases de dominio y sus relaciones (asociación, composición, herencia)</li>
+            <li>Las interfaces que definen los contratos entre componentes</li>
+            <li>Los servicios que implementan la lógica de negocio</li>
+            <li>Los repositorios que gestionan la persistencia</li>
+          </ul>
+          <p>
+            Esta estructura organizativa permite una clara visualización de las responsabilidades y dependencias entre componentes, facilitando la comprensión global del sistema.
+          </p>
+        </section>
+
+        <section id="ui" class="content-section">
+          <h2>9. Interfaz de Usuario</h2>
+          <p>
+            Para el desarrollo de la App 2, decidimos utilizar una interfaz de JavaFX compuesta por ventanas independientes y controles visuales (GUI) que faciliten la gestión agrícola.
+          </p>
+          
+          <ul>
+            <li>
+              <strong>Ventana principal (App2):</strong> Muestra un menú superior con las opciones "Cultivos" y "Actividades". Cada opción abre su respectiva ventana sin cerrar la anterior, permitiendo trabajar en paralelo.
+            </li>
+            <li>
+              <strong>CultivoWindow:</strong> Tabla con columnas Nombre, Variedad, Superficie, Parcela, Fecha de Siembra y Estado. Botones "Nuevo", "Editar", "Eliminar", "Listar" y "Cerrar". El diálogo de alta/edición válida que superficies sean numéricas y que la fecha de siembra no sea futura.
+            </li>
+            <li>
+              <strong>ActividadWindow:</strong> Tabla con Cultivo · Fecha · Tipo · Estado y dos filtros combinables: por nombre de cultivo y por tipo de actividad. Botones "Agregar" (solo cultivos sin actividad), "Completar", "Guardar" y "Salir". Un doble clic sobre la fila abre un diálogo rápido para modificar fecha o estado.
+            </li>
+            <li>
+              <strong>Diálogos reutilizables:</strong> Factory Method encapsulado: los métodos dialogoCultivo() y dialogoActividad() crean formularios con controles adecuados, reutilizando validaciones y evitando duplicación de código.
+            </li>
+            <li>
+              <strong>Binding y refresco automático:</strong> Las propiedades observables de ActividadRow y los StringProperty de los modelos actualizan la tabla en tiempo real, eliminando la necesidad de listeners manuales.
+            </li>
+            <li>
+              <strong>Persistencia transparente:</strong> Cada operación que modifica datos dispara la escritura inmediata en los respectivos CSV, garantizando que el usuario nunca pierda información al cerrar la ventana.
+            </li>
+          </ul>
+          
+          <p>
+            Gracias a estos elementos, la interfaz ofrece un flujo de trabajo fluido y preparado para futuras extensiones, cumpliendo con los principios SOLID.
+          </p>
+        </section>
+      </div>
+      <section id="reflexiones" class="content-section">
+        <h2>10. Reflexiones Finales</h2>
+        <p>
+          El desarrollo de App2 como sistema de gestión agrícola nos ha permitido aplicar de forma práctica los conocimientos adquiridos sobre programación orientada a objetos y patrones de diseño. 
+        </p>
+        
+        <h3>Aprendizajes clave:</h3>
+        <ul>
+          <li>
+            <strong>Valor de la arquitectura en capas:</strong> La separación en modelos, servicios y UI nos permitió trabajar en paralelo sin interferencias y facilitó las pruebas unitarias.
+          </li>
+          <li>
+            <strong>Patrones como soluciones probadas:</strong> La implementación de patrones como Factory Method y Adapter proporcionó soluciones elegantes a problemas recurrentes, mejorando la mantenibilidad del código.
+          </li>
+          <li>
+            <strong>Persistencia desacoplada:</strong> El manejo de CSV a través de un componente centralizado demostró cómo es posible cambiar la fuente de datos sin afectar la lógica de negocio.
+          </li>
+          <li>
+            <strong>Interfaces gráficas reactivas:</strong> JavaFX y el patrón Observer permitieron construir una UI que refleja automáticamente los cambios en los datos, mejorando la experiencia de usuario.
+          </li>
+        </ul>
+        
+        <h3>Desafíos superados:</h3>
+        <ul>
+          <li>
+            <strong>Integridad referencial:</strong> Mantener la consistencia entre cultivos, parcelas y actividades requirió un cuidadoso diseño de los servicios y el manejo de relaciones.
+          </li>
+          <li>
+            <strong>Validación de datos:</strong> Implementar verificaciones en múltiples niveles para garantizar que solo información correcta se persista en los archivos CSV.
+          </li>
+          <li>
+            <strong>Manejo de errores:</strong> Desarrollar estrategias para recuperarse de fallos en la lectura/escritura de archivos sin comprometer la experiencia del usuario.
+          </li>
+        </ul>
+        
+        <p>
+          En conclusión, este proyecto nos ha permitido consolidar principios teóricos de POO en una aplicación práctica, demostrando cómo un buen diseño orientado a objetos facilita el desarrollo, mantenimiento y evolución de software incluso en sistemas aparentemente sencillos como una gestión basada en archivos CSV. La combinación de buenas prácticas de ingeniería de software con herramientas modernas como JavaFX resultó en un producto final que cumple los requisitos funcionales mientras mantiene un código limpio y extensible.
+        </p>
+      </section>
+        </body>
+    </main>
+    <footer>
+      <div class="container">
+        <p>© 2025 App2 - Sistema de Gestión Agrícola | Universidad Adolfo Ibáñez</p>
+      </div>
+    </footer>
+
+    <!-- Botón para subir -->
+    <button id="scrollToTopBtn" onclick="scrollToTop()">&#8679;</button>
+
+    <script>
+      // Obtener el botón
+      const scrollToTopBtn = document.getElementById("scrollToTopBtn");
+
+      // Mostrar el botón cuando se hace scroll hacia abajo
+      window.onscroll = function () {
+        if (
+          document.body.scrollTop > 20 ||
+          document.documentElement.scrollTop > 20) {
+          scrollToTopBtn.style.display = "flex";
+        } else {
+          scrollToTopBtn.style.display = "none";
+        }
+      };
+
+      // Función para subir al inicio cuando se hace clic en el botón
+      function scrollToTop() {
+        document.body.scrollTop = 0; // Para Safari
+        document.documentElement.scrollTop = 0; // Para Chrome, Firefox, IE y Opera
+      }
+
+      // Asegurar que todos los enlaces de navegación tengan comportamiento suave
+      document.querySelectorAll('nav a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener('click', function (e) {
+          e.preventDefault();
+          
+          const targetId = this.getAttribute('href');
+          const targetElement = document.querySelector(targetId);
+          
+          if (targetElement) {
+            targetElement.scrollIntoView({
+              behavior: 'smooth'
+            });
+          }
+        });
+      });
+    </script>
+  </body>
+</html>
