@@ -1,0 +1,16 @@
+ui\App2.class
+models\Parcela.class
+models\Cultivo.class
+ui\ActividadWindow.class
+ui\ParcelaWindow.class
+models\EstadoCultivo.class
+ui\ActividadRow.class
+ui\CultivoWindow.class
+utils\CSVHandler.class
+models\Actividad.class
+models\ElementoAgricola.class
+models\Actividad$Tipo.class
+services\CultivoService.class
+ui\ReporteWindow.class
+services\ActividadService.class
+services\ParcelaService.class
